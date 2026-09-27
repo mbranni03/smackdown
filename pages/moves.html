@@ -132,6 +132,8 @@
 <script src="../src/characters/lego-moveset.js"></script>
 <script src="../src/characters/muse.js"></script>
 <script src="../src/characters/muse-moveset.js"></script>
+<script src="../src/characters/snoopy.js"></script>
+<script src="../src/characters/snoopy-moveset.js"></script>
 <script>
 const VW = 480, VH = 270, SCALE = 2, GROUND = 200;
 const cv = document.getElementById('c'); ctx = cv.getContext('2d');
@@ -161,6 +163,8 @@ const FIGHTERS = {
     hurt: (p = {}) => { const w = 46 * (p.sx ?? 1), h = 76 * (p.sy ?? 1); return { x: (p.x || 0) - w / 2, y: (p.y || 0) - h, w, h }; } },
   muse: { name: 'Muse', moves: withTodo(MUSE_MOVESET), draw: drawMuse, fx: (x, y, p) => { drawClawdFx(x, y, p); if (p.oops > 0) drawOops(x, y - 100, p.oops, p.oopsMsg); }, // + its shield break toast
     hurt: (p = {}) => { const w = 50 * (p.sx ?? 1), h = 70 * (p.sy ?? 1); return { x: (p.x || 0) - w / 2, y: (p.y || 0) - h, w, h }; } },
+  snoopy: { name: 'Snoopy', moves: withTodo(SNOOPY_MOVESET), draw: drawSnoopy, fx: (x, y, p) => { drawClawdFx(x, y, p); if (p.oops > 0) drawOops(x, y - 100, p.oops, p.oopsMsg); }, // + his shield break toast
+    hurt: (p = {}) => { const w = 46 * (p.sx ?? 1), h = 78 * (p.sy ?? 1); return { x: (p.x || 0) - w / 2, y: (p.y || 0) - h, w, h }; } },
   lego: { name: 'Lego Man', moves: withTodo(LEGO_MOVESET), draw: drawLego, fx: drawClawdFx, hurt: (p = {}) => ({ x: (p.x || 0) - 22 * (p.sx ?? 1), y: (p.y || 0) - 72 * (p.sy ?? 1), w: 44 * (p.sx ?? 1), h: 72 * (p.sy ?? 1) }) },
 };
 for (const F of Object.values(FIGHTERS)) if (F.draw !== drawClawd) { // as in the game: the others drawn inside Claw'd's effects (captions, speed lines…)

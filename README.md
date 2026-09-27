@@ -1,7 +1,7 @@
 # Supa Smackdown
 
 A hand-drawn, Smash-style fighting game in the browser, starring the internet's mascots: Claw'd, Grok Bot, Wumpus, Android,
-Duo, Snoo, Lego Man and Muse. Every fighter fights with its own app. Duo pop-quizzes you, Wumpus blasts the soundboard airhorn,
+Duo, Snoo, Lego Man, Muse and Snoopy. Every fighter fights with its own app. Duo pop-quizzes you, Wumpus blasts the soundboard airhorn,
 Android sends the Chrome dino leaping out, and Lego Man builds stairs out of studs.
 
 **[▶ Play it in your browser](https://mbranni03.github.io/smackdown/)**. Nothing to install.
