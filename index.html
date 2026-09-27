@@ -29,6 +29,7 @@
 <script src="src/characters/snoo.js"></script>
 <script src="src/characters/lego.js"></script>
 <script src="src/characters/muse.js"></script>
+<script src="src/characters/snoopy.js"></script>
 <script src="src/characters/clawd-moveset.js"></script>
 <script src="src/characters/grok-moveset.js"></script>
 <script src="src/characters/duo-moveset.js"></script>
@@ -37,6 +38,7 @@
 <script src="src/characters/android-moveset.js"></script>
 <script src="src/characters/snoo-moveset.js"></script>
 <script src="src/characters/muse-moveset.js"></script>
+<script src="src/characters/snoopy-moveset.js"></script>
 <script src="src/cpu.js"></script>
 <script src="src/sfx.js"></script>
 <script>
@@ -173,10 +175,11 @@ const FIGHTER = {
   snoo: { name: 'Snoo', box: [46, 76], art: drawSnoo, set: SNOO_MOVESET },
   lego: { name: 'Lego Man', box: [44, 72], art: drawLego, set: LEGO_MOVESET, pad: true },
   muse: { name: 'Muse', box: [50, 70], art: drawMuse, set: MUSE_MOVESET },
+  snoopy: { name: 'Snoopy', box: [46, 78], art: drawSnoopy, set: SNOOPY_MOVESET, tile: { k: 1.1, x: -8 } }, // tile: his select tile portrait smaller and back a bit (his big head and nose)
   bag: { name: 'Training Bag', box: [44, 76], draw: (x, y, p) => drawSack(x, y, p.rot || 0) },
   random: { name: 'Random', box: [60, 60], draw: (x, y, p, f, t) => { ctx.save(); ctx.translate(x, y - 32); drawQuestion(48, t); ctx.restore(); } }, // a pick not rolled yet
 };
-const ROSTER = ['clawd', 'grok', 'wumpus', 'android', 'duo', 'snoo', 'lego', 'muse']; // select screen order (LOGOS follows it)
+const ROSTER = ['clawd', 'grok', 'wumpus', 'android', 'duo', 'snoo', 'lego', 'muse', 'snoopy']; // select screen order (LOGOS follows it)
 ROSTER.forEach((id, k) => FIGHTER[id].draw = (x, y, p, f, t) => FIGHTER[id].art(x, y, { ...idleAt(t, k), ...p }, f)); // each a little out of step
 fighter = FIGHTER.clawd;
 // in play: P1 and the CPUs picked on the select screen (fighters, below), or the training bag if none. The CPUs fight back (src/cpu.js
@@ -560,7 +563,7 @@ function throwStep() { // lets go on the startup frame
 // A counter in its window turns it back; a raised shield takes it instead, wearing down by its damage (SHIELD_HIT per 12%) and breaking
 // if it runs out, sliding back a little. false = it didn't connect
 function hitClawd(dmg, kb, dir) {
-  const c = MOVES[P.state]; if (c?.counter && P.f >= c.startup && P.f < c.startup + c.active) { P.counterDir = dir; setState(c.counter); return false; } // countered: the hit does nothing
+  const c = MOVES[P.state]; if (c?.counter && P.f >= c.startup && P.f < c.startup + c.active) { P.counterDir = dir; setState(c.counter); if (MOVES[c.counter].turn) P.face = -dir; return false; } // countered: the hit does nothing (turn: the follow-up faces whoever hit it, Snoopy's kickoff)
   if (P.state === 'shield' && P.shield > 0) { sfx.play('block'); P.shield -= SHIELD_HIT * dmg / 12; P.vx = dir * (150 + 20 * dmg); if (P.shield <= 0) breakShield(); return false; }
   hurt(dmg);
   const k = (kb.base + kb.growth * P.dmg / 100) * (P.buff > 0 ? DOWN_B.streak.heavy : 1), a = kb.angle * Math.PI / 180; // buff Duo's heavy
@@ -1104,7 +1107,7 @@ function hitBag(b, dmg, kb, dir) {
   dmg *= THINK_POWER[P.think] * (1 + (DOWN_B.power || 0) * P.batt) * (P.gold > 0 ? MOVES.goldBrick.power.mult : 1) * (P.mech > 0 ? MOVES.mech.suit.mult : 1) * (P.buff > 0 ? DOWN_B.streak.mult : 1); P.batt = 0; // (+ Lego Man's gold brick / mech suit, buff Duo)
   if (P.buff > 0) kb = { ...kb, base: kb.base * DOWN_B.streak.kb, growth: kb.growth * DOWN_B.streak.kb }; // buff Duo hits harder
    // the attacker's effort tier scales every hit, a stored fast charge just this one
-  if (b.c) { const me = cur, g = b.grabbed; use(b.c); const hit = hitClawd(dmg, kb, dir); use(me); if (g === P) b.grabbed = g; if (!hit) return false; } // (a pummel keeps the grip; anyone else's hit knocks it loose)
+  if (b.c) { const me = cur, g = b.grabbed; use(b.c); const hit = hitClawd(dmg, kb, dir), slip = !hit && P.f === 0 && MOVES[P.state]?.slip; use(me); if (g === P) b.grabbed = g; if (slip) P.sticker = { t: 0, ...slip }; if (!hit) return false; } // (a pummel keeps the grip; anyone else's hit knocks it loose) · slip = a counter's sticker left on the attacker (Snoopy's AAUGH!)
   else {
     b.dmg += dmg; b.hitT = 0.3; b.pinT = 0; // a hit knocks it off a pin
     const s = (kb.base + kb.growth * b.dmg / 100) * KB, a = kb.angle * Math.PI / 180;
@@ -1410,7 +1413,7 @@ function drawTitle(t) {
   ctx.restore();
   const gy = H / 2 + 85;
   ctx.strokeStyle = INK; ctx.lineWidth = 2; line(W / 2 - 420, gy, W / 2 + 420, gy, 1.2, 1);
-  [[-385, drawWumpus, 1], [-275, drawGrok, 1], [-165, drawLego, 1], [-55, drawClawd, 1], [55, drawMuse, -1], [165, drawSnoo, -1], [275, drawAndroid, -1], [385, drawDuo, -1]].forEach(([x, draw, face], i) => {
+  [[-400, drawWumpus, 1], [-300, drawGrok, 1], [-200, drawLego, 1], [-100, drawSnoopy, 1], [0, drawClawd, 1], [100, drawMuse, -1], [200, drawSnoo, -1], [300, drawAndroid, -1], [400, drawDuo, -1]].forEach(([x, draw, face], i) => {
     ctx.save(); ctx.translate(W / 2 + x, gy); ctx.scale(1.4, 1.4); draw(0, 0, idleAt(t, i), face); ctx.restore();
   });
 }
@@ -1512,6 +1515,7 @@ const LOGOS = [
     for (const [c, p] of LOGO_LEGO) { ctx.fillStyle = c; ctx.fill(p, 'evenodd'); }
   },
   () => { ctx.translate(14, 14); metaLoop(28, 15, 4); }, // Meta's ∞
+  snoopyLogo, // Snoopy's head on a red disc
 ];
 // character select, Smash style: the roster along the top (click / Enter picks your fighter, then CPU dummies), a READY TO FIGHT band,
 // and the player slots along the bottom: P1 (the first pick) and up to three CPUs (the picks after it; click a slot to clear it).
@@ -1578,7 +1582,7 @@ function drawSelect(t) {
     const x = tileX(i), y = TILE.y, on = !onBand && focus === i, r = rect(x, y, TILE.w, TILE.h);
     ctx.fillStyle = '#e3d9c6'; path(r); ctx.fill();
     ctx.save(); ctx.beginPath(); ctx.rect(x + 2, y + 2, TILE.w - 4, TILE.h - 4); ctx.clip(); // keep antennae / ears inside
-    ctx.translate(x + TILE.w / 2, y + 108); ctx.scale(1.35, 1.35); FIGHTER[id].draw(0, 0, {}, 1, t); ctx.restore();
+    const { k = 1.35, x: dx = 0 } = FIGHTER[id].tile || {}; ctx.translate(x + TILE.w / 2 + dx, y + 108); ctx.scale(k, k); FIGHTER[id].draw(0, 0, {}, 1, t); ctx.restore();
     ctx.strokeStyle = on ? CLAWD : INK; ctx.lineWidth = on ? 3.6 : 2; poly(r, 1.1);
     ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.font = '700 28px Caveat, cursive'; ctx.fillText(FIGHTER[id].name, x + TILE.w / 2, y + TILE.h - 12);
     ctx.save(); ctx.translate(x + 9, y + 9); ctx.scale(0.8, 0.8); LOGOS[i](); ctx.restore();

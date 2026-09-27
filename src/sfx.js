@@ -216,6 +216,24 @@ const sfx = (() => {
     balloons: [['sawtooth', [300, 720], 0, 0.35, 0.05, { lp: 2500, vib: [26, 25] }], ['sine', [1200, 1700], 0.32, 0.15, 0.06, { vib: [30, 40] }]], // party blower, then a squeak
     scroll: arp([0, 1, 2, 3], 0.035, (i, t) => [['sine', 1800 - 100 * i, t, 0.012, 0.11]]),
     glitch: [['square', [800, 200], 0, 0.1, 0.05, { lp: 3000 }], ['hp', 3000, 0.1, 0.08, 0.12], ['square', [600, 150], 0.18, 0.12, 0.05, { lp: 3000 }]],
+
+    // Snoopy: Peanuts
+    bark: () => [['square', [520 * rnd(), 300], 0, 0.1, 0.07, { lp: 1400 }], ['bp', [900, 500], 0, 0.09, 0.45, { q: 2 }], ['square', [460 * rnd(), 260], 0.14, 0.12, 0.07, { lp: 1300 }], ['bp', [800, 450], 0.14, 0.1, 0.4, { q: 2 }]], // woof woof
+    smak: [['bp', 2200, 0, 0.02, 0.6, { q: 3 }], ['sine', [900, 300], 0, 0.06, 0.2], ...bell(1568, 0.05, 0.2, 0.05)], // a big wet kiss, and a little twinkle
+    bleah: [['sawtooth', [150, 120], 0, 0.4, 0.07, { lp: 900, vib: [28, 18] }], ['bp', 700, 0, 0.35, 0.18, { q: 1 }]], // a raspberry
+    copter: [['sawtooth', [80, 110], 0, 0.4, 0.06, { lp: 600, vib: [24, 30] }], whoosh(400, 1400, 0, 0.4, 0.35)], // ears whirring
+    whip: [whoosh(500, 2400, 0, 0.16, 0.5)],
+    blanket: [whoosh(250, 900, 0, 0.25, 0.35)],
+    cool: [['sawtooth', 392, 0, 0.16, 0.05, { lp: 1100, vib: [5, 6] }], ['sawtooth', 311, 0.17, 0.35, 0.05, { lp: 1000, vib: [5, 8] }]], // a lazy sax: Joe Cool
+    grief: arp([523, 440, 349], 0.13, (f, t) => [['triangle', f, t, 0.2, 0.1], ['sine', f / 2, t, 0.2, 0.06]]), // good grief
+    piano: arp([659, 622, 659, 622, 659, 494, 587, 523, 440], 0.11, (f, t) => [['triangle', f, t, 0.35, 0.09], ['sine', f * 2, t, 0.12, 0.03]]), // Schroeder's Beethoven: Für Elise
+    propeller: [['sawtooth', [110, 150], 0, 0.55, 0.06, { lp: 900, vib: [30, 25] }], whoosh(300, 1200, 0, 0.5, 0.3)], // the Sopwith Camel puttering off
+    chirps: arp([0, 1, 2, 3], 0.07, (i, t) => [['sine', [2300 + 150 * i, 3300], t, 0.05, 0.1]]), // Woodstock and friends
+    aaugh: [['sawtooth', [420, 170], 0, 0.45, 0.06, { lp: 1600, vib: [9, 25] }], ['bp', [1200, 500], 0, 0.4, 0.15, { q: 2 }]],
+    boot: [['sine', [170, 55], 0, 0.16, 0.45], ['bp', 900, 0, 0.04, 0.5, { q: 2 }]],
+    ace: [['sawtooth', [90, 150], 0, 0.45, 0.07, { lp: 800, vib: [28, 20] }], whoosh(300, 2000, 0.05, 0.4, 0.4)], // throttle open, and away
+    dance: arp([523, 659, 784, 659, 880, 1047], 0.075, (f, t) => [['triangle', f, t, 0.12, 0.09]]),
+    typewriter: () => [...key(0), ...key(0.06), ...key(0.12, 1, 1700), ...bell(2093, 0.18, 0.5, 0.1)], // clack clack clack, DING
   };
 
   // what every fighter's states sound like, by state (and the few beats that aren't one: jump, djump, grabbed), then each one's own on
@@ -254,6 +272,10 @@ const sfx = (() => {
     muse: { jab2: 'boop', upSmash: 'shutter', downSmash: 'saber', neutralSpecial: 'metaSpark', sideSpecial: 'poke', upSpecial: 'balloons', downSpecial: 'imagine',
       forwardThrow: 'shared', backThrow: 'unfriend', shield: 'scroll', shieldBreak: 'glitch', respawn: 'messenger',
       hit: { upTilt: 'like', upAir: 'like', pummel: 'like', upThrow: 'like', downTilt: 'love', downAir: 'love', downThrow: 'love' } },
+    snoopy: { djump: 'copter', upTilt: 'whip', dashAttack: 'bark', pummel: 'smak', forwardThrow: 'bleah', backThrow: 'cool', upThrow: 'bark',
+      forwardSmash: 'ace', upSmash: 'dance', downSmash: 'typewriter', neutralSpecial: 'piano', sideSpecial: 'propeller', upSpecial: 'chirps',
+      football: 'blanket', kickoff: 'aaugh', shield: 'blanket', shieldBreak: 'grief', respawn: 'bark',
+      hit: { jab3: 'bonk', downAir: 'bonk', forwardTilt: 'bonk', kickoff: 'boot', forwardSmash: 'bonk' } },
   };
   const brand = () => BRAND[ROSTER.find(id => FIGHTER[id] === fighter)] || {}; // the fighter in play's
 
